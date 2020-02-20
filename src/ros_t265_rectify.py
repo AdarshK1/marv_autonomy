@@ -5,9 +5,6 @@ from sensor_msgs.msg import Image, CameraInfo
 from cv_bridge import CvBridge, CvBridgeError
 
 
-# import tf
-
-
 class T265_Stereo:
 
     def __init__(self):
@@ -62,7 +59,6 @@ class T265_Stereo:
         self.fisheye_left_img = self.bridge.imgmsg_to_cv2(img_msg, desired_encoding="mono8")
         self.got_fisheye_left_img = True
         if self.initialized:
-
             undist_left = cv2.remap(src=self.fisheye_left_img,
                                     map1=self.undistort_rectify["left"][0],
                                     map2=self.undistort_rectify["left"][1],
@@ -74,11 +70,12 @@ class T265_Stereo:
         print("right callback")
         self.fisheye_right_img = self.bridge.imgmsg_to_cv2(img_msg, desired_encoding="mono8")
         self.got_fisheye_right_img = True
+
         if self.initialized:
             undist_right = cv2.remap(src=self.fisheye_right_img,
-                      map1=self.undistort_rectify["right"][0],
-                      map2=self.undistort_rectify["right"][1],
-                      interpolation=cv2.INTER_LINEAR)
+                                     map1=self.undistort_rectify["right"][0],
+                                     map2=self.undistort_rectify["right"][1],
+                                     interpolation=cv2.INTER_LINEAR)
             color_image_right_msg = self.bridge.cv2_to_imgmsg(undist_right, encoding="mono8")
             self.pub_right_rect.publish(color_image_right_msg)
 
@@ -128,7 +125,7 @@ class T265_Stereo:
         self.right_D = np.array(self.fisheye_right_cam_info.D[:4])
 
         (self.width, self.height) = (
-        self.fisheye_left_cam_info.width, self.fisheye_right_cam_info.height)
+            self.fisheye_left_cam_info.width, self.fisheye_right_cam_info.height)
 
         self.R = np.array([[0.99996531, 0.00580445, -0.00597129],
                            [-0.00579029, 0.99998039, 0.00238675],

@@ -24,12 +24,9 @@ TRANSITION CRITERIA: Joy Flag enabled on launch
 STATE 8: Joystick: Take the boat for a joy ride...get it
 """
 
-import sys
-import time
 import rospy
 
 from std_msgs.msg import Float32MultiArray, Float32, Bool
-from sensor_msgs.msg import Joy
 from geometry_msgs.msg import TwistStamped, PoseStamped
 
 
@@ -44,7 +41,8 @@ class MissionManagerNode:
                                                queue_size=1)
 
         # subscribe to gps_goal
-        self.tone_found_sub = rospy.Subscriber("/gps/goal_pose", PoseStamped, self.gps_received_cb,
+        self.gps_goal_sub = rospy.Subscriber("/gps_translator/goal_pose", PoseStamped,
+                                               self.gps_received_cb,
                                                queue_size=1)
 
         # subscribe to the orientation monitor's current status
@@ -64,11 +62,18 @@ class MissionManagerNode:
         self.current_state = 0
         self.current_orientation = 0
 
+    '''
+    helper method for quickly publishing state method
+    '''
     def pub_status(self):
         status_msg = Float32MultiArray()
         status_msg.data = [self.current_state, self.current_orientation]
         self.state_pub.publish(status_msg)
 
+    '''
+    callback for orientation status. this has a number of the state transitions in it, including 
+    the recovery behavior
+    '''
     def orientation_status_cb(self, float_msg):
         # TRANSITION CRITERIA: 0 --> 1
         if float_msg.data == 0 and self.current_state == 0:
@@ -127,6 +132,9 @@ class MissionManagerNode:
             self.pub_status()
             return
 
+    '''
+    callback for if a person is found
+    '''
     def person_found_cb(self, bool_msg):
         # TRANSITION CRITERIA N > 2 --> 6
         if 2 < self.current_state < 6 and bool_msg.data:
@@ -134,7 +142,9 @@ class MissionManagerNode:
             rospy.logwarn("[M_MNGR] Transition {} --> 6".format(self.current_state))
             self.pub_status()
             return
-
+    '''
+    callback for if tone found 
+    '''
     def tone_found_cb(self, bool_msg):
         # TRANSITION CRITERIA N > 2 --> 5
         if 2 < self.current_state < 5 and bool_msg.data:
@@ -142,7 +152,9 @@ class MissionManagerNode:
             rospy.logwarn("[M_MNGR] Transition {} --> 5".format(self.current_state))
             self.pub_status()
             return
-
+    '''
+    callback for if gps received 
+    '''
     def gps_received_cb(self, pose_msg):
         # TRANSITION CRITERIA N > 2 --> 5
         if 2 < self.current_state < 4:
