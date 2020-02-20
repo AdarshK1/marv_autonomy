@@ -7,4 +7,8 @@
     <!--   Mission Manager Node -->
     <node pkg="marv_autonomy" name="mission_manager" type="mission_manager_node.py"
           output="screen"/>
+
+    <!-- Orientation Monitor Node-->
+    <node pkg="marv_autonomy" name="orientation_monitor" type="orientation_monitor_node.py"
+          output="screen"/>
     </launch>
