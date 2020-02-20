@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+    <!-- Launch the Marv drivers-->
+    <include file="$(find marv_drivers)/launch/marv_drivers.launch"/>
+
+    <!--   Mission Manager Node -->
+    <node pkg="marv_autonomy" name="mission_manager" type="mission_manager_node.py"
+          output="screen"/>
+    </launch>
